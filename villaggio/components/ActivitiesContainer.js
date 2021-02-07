@@ -1,25 +1,30 @@
-import { Col, Grid } from 'native-base'
 import React, { useEffect } from 'react'
+import { Col, Grid, View } from 'native-base'
+import ActivityImage from './ActivityImage'
 
 export default function ActivitiesContainer(props) {
 
-    const [data, setData] = React.useState([])
+    const [data, setData] = React.useState(null)
 
     useEffect(() => {
-        fetch('https://workers.ghostyjade.workers.dev/activities/list', {
+        fetch('https://villaggio.ghostyjade.workers.dev/activities', {
             headers: {
                 'x-access-token': props.user.token
             }
-        }).then()
+        }).then(response => response.json()).then(result => {
+            setData(result.list)
+        })
     }, [])
 
+    if (!data) return <></>
+
     return (
-        <Grid>
+        <View>
             {
-                data.map(v, i => {
-                    
+                data.map((v, i) => {
+                    return (<ActivityImage key={i} data={v} />)
                 })
             }
-        </Grid>
+        </View>
     )
 }

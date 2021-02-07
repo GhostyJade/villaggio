@@ -1,8 +1,13 @@
+import 'react-native-gesture-handler';
 import React, { useEffect } from 'react';
-import AppLoading from 'expo-app-loading'
-import { Body, Button, Col, Container, Grid, Icon, Left, Title, Header, Fab } from 'native-base';
-import { Text } from 'react-native';
+import AppLoading from 'expo-app-loading';
+import { NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import * as Font from 'expo-font';
+import Home from './pages/home';
+import ActivityCreator from './components/ActivityCreator';
+
+const Drawer = createDrawerNavigator();
 
 export default function App() {
 
@@ -29,32 +34,27 @@ export default function App() {
     loadFont()
   }, [])
 
-  const createNewActivity = () => { }
 
   if (!ready || !user)
     return <AppLoading />
-  if (user)
-    return (
-      <Container>
-        <Header>
-          <Left>
-            <Button transparent>
-              <Icon name="menu" />
-            </Button>
-          </Left>
-          <Body>
-            <Title>Villaggio</Title>
-          </Body>
-        </Header>
-        <Grid>
-          {
-            user.admin && (
-              <Fab position="bottomRight" onPress={() => createNewActivity()}>
-                <Icon name="add" />
-              </Fab>
+  return (
+    <NavigationContainer>
+      <Drawer.Navigator initialRouteName="Home">
+        {
+          user != null ? (
+            <>
+              <Drawer.Screen name="Home">
+                {(props) => <Home {...props} user={user} />}
+              </Drawer.Screen>
+              <Drawer.Screen name="ActivityCreator">
+                {(props) => <ActivityCreator {...props} user={user} />}
+              </Drawer.Screen>
+            </>
+          ) : (
+              <></>
             )
-          }
-        </Grid>
-      </Container>
-    );
+        }
+      </Drawer.Navigator>
+    </NavigationContainer>
+  )
 }

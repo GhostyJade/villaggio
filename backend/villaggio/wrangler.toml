@@ -1,0 +1,9 @@
+name = "villaggio"
+type = "webpack"
+account_id = "b122f13431f730ddded28b41fe3d3de9"
+workers_dev = true
+route = ""
+zone_id = ""
+kv-namespaces = [
+    { binding = "villaggio", id = "8aaba21ad59d46e886339bca5d254e1a", preview_id = "8aaba21ad59d46e886339bca5d254e1a" }
+]

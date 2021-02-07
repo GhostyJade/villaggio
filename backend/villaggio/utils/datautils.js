@@ -2,13 +2,17 @@ const jwt = require('jsonwebtoken')
 
 const config = require('../config.json')
 
-module.exports = async function validateToken() {
-    const token = request.headers['x-access-token']
+module.exports = function validateToken(request) {
+    const token = request.headers.get('x-access-token')
     if (!token) {
-        return { errorCode: 400, success: false }
-    }
-    jwt.verify(token, config.SECRET, (err, _decoded) => {
-        if (err)
-            return { errorCode: 400, success: false }
-    })
+        return false
+    } else
+        try {
+            const result = jwt.verify(token, config.SECRET)
+            if (result) return true
+            return false
+        } catch (err) {
+            return false
+        }
+
 }

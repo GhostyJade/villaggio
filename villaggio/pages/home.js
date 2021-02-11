@@ -1,18 +1,30 @@
-import React from 'react';
-import { Body, Button, Container, Grid, Icon, Left, Title, Header, Fab, Right } from 'native-base';
-import ActivitiesContainer from '../components/ActivitiesContainer';
+import React from "react";
+import {
+  Body,
+  Button,
+  Container,
+  Grid,
+  Icon,
+  Left,
+  Title,
+  Header,
+  Fab,
+  Right,
+} from "native-base";
+import ActivitiesContainer from "../components/ActivitiesContainer";
 
 export default function Home(props) {
-  const { user, navigation } = props
+  const { user, navigation, refresh, updateRefresh } = props;
 
   const createNewActivity = () => {
-    navigation.navigate('ActivityCreator')
-  }
+    navigation.navigate("ActivityCreator");
+  };
+
   return (
     <Container>
       <Header>
         <Left>
-          <Button transparent>
+          <Button transparent onPress={() => navigation.openDrawer()}>
             <Icon name="menu" />
           </Button>
         </Left>
@@ -22,14 +34,17 @@ export default function Home(props) {
         <Right />
       </Header>
       <Grid>
-        <ActivitiesContainer user={user} />
-        {
-          user.admin && (
-            <Fab position="bottomRight" onPress={() => createNewActivity()}>
-              <Icon name="add" />
-            </Fab>
-          )
-        }
+        <ActivitiesContainer
+          updateRefresh={updateRefresh}
+          refresh={refresh}
+          user={user}
+          navigation={navigation}
+        />
+        {user.admin && (
+          <Fab position="bottomRight" onPress={() => createNewActivity()}>
+            <Icon name="add" />
+          </Fab>
+        )}
       </Grid>
     </Container>
   );

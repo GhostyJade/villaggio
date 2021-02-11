@@ -1,6 +1,8 @@
 const crypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const config = require('../config.json')
+const validateToken = require('../utils/datautils')
+const uuidv4 = require('uuid').v4
 
 const registerUser = (r, handler) => {
     r.post('/register', async request => {
@@ -13,23 +15,33 @@ const registerUser = (r, handler) => {
             return handler({ error: true })
         }
 
-        let error = false, success = false
+        let error = false,
+            success = false
         const usersCollection = await villaggio.get('users')
         if (usersCollection !== null) {
             const data = JSON.parse(usersCollection)
             data.forEach(e => {
-                if (e.username === username)
-                    error = true
+                if (e.username === username) error = true
             })
 
             if (!error) {
-                data.push({ username, password: cryptedPassword, admin: false })
+                data.push({
+                    username,
+                    password: cryptedPassword,
+                    admin: false,
+                    id: uuidv4(),
+                })
                 await villaggio.put('users', JSON.stringify(data))
                 success = true
             }
         } else {
             const data = []
-            data.push({ username, password: cryptedPassword, admin: false })
+            data.push({
+                username,
+                password: cryptedPassword,
+                admin: false,
+                id: uuidv4(),
+            })
             await villaggio.put('users', JSON.stringify(data))
             success = true
         }
@@ -57,18 +69,38 @@ const loginUser = async (r, handler) => {
                 }
             })
             if (user) {
-                await crypt.compare(password, user.password).then((res) => {
+                await crypt.compare(password, user.password).then(res => {
                     if (res) {
                         authenticated = true
-                        token = jwt.sign({ username }, config.SECRET, { expiresIn: '24h' })
+                        token = jwt.sign({ username }, config.SECRET, {
+                            expiresIn: '24h',
+                        })
                     }
                 })
             }
         }
         if (user)
-            return handler({ authenticated, token, admin: user.admin })
-        else
-            return handler({ authenticated, token })
+            return handler({
+                authenticated,
+                token,
+                admin: user.admin,
+                id: user.id,
+            })
+        else return handler({ authenticated, token })
     })
 }
-module.exports = { registerUser, loginUser }
+
+const getLikes = async (r, handler) => {
+    r.post('/user/likes', async request => {
+        if (validateToken(request)) {
+            const body = await request.json()
+            const { userId } = body
+            const likesCollection = await villaggio.get('likes')
+            if (!likesCollection) return handler({ list: [] })
+            const list = JSON.parse(likesCollection)
+            return handler({ list: list.filter(e => e.userId === userId) })
+        } else return handler({ error: true })
+    })
+}
+
+module.exports = { registerUser, loginUser, getLikes }
